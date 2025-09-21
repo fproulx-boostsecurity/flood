@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flood - Random Poetry Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid bg-gradient min-vh-100">
+        <div class="container py-5">
+            <header class="text-center mb-5">
+                <h1 class="display-4 text-white fw-bold mb-3">🌊 Flood</h1>
+                <p class="lead text-white-50">A cascade of randomly generated poetry</p>
+            </header>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-xl-6">
+                    <div class="card shadow-lg border-0 poem-card">
+                        <div class="card-body p-5">
+                            {% if poem %}
+                            <div class="poem-content">
+                                <h2 class="poem-title text-center mb-4">{{ poem.title }}</h2>
+                                <div class="poem-text">
+                                    {% for line in poem.lines %}
+                                    <p class="poem-line">{{ line }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center">
+                                <p class="text-muted">No poem generated yet.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-center pb-4">
+                            <button id="generateBtn" class="btn btn-primary btn-lg px-4 me-3">
+                                ✨ Generate New Poem
+                            </button>
+                            <button id="shareBtn" class="btn btn-outline-secondary">
+                                📋 Copy Poem
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center mt-5">
+                <div class="col-lg-8 text-center">
+                    <p class="text-white-50 small">
+                        Each poem is uniquely generated using templates and random word combinations.
+                        <br>
+                        <a href="/api/poem" class="text-white-50 text-decoration-none">API endpoint</a> available for developers.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
