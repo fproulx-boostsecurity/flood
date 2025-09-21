@@ -1,0 +1,38 @@
+{
+  "name": "flood",
+  "version": "1.0.0",
+  "description": "A Python Flask web app for generating random poems",
+  "main": "app.py",
+  "scripts": {
+    "test": "npm run test:python && npm run test:js",
+    "test:python": "python -m pytest tests/ -v",
+    "test:js": "echo 'JavaScript tests not implemented yet'",
+    "start": "python app.py",
+    "dev": "python app.py",
+    "lint": "echo 'Linting not configured'",
+    "build": "echo 'Build complete - Flask app ready'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fproulx-boostsecurity/flood.git"
+  },
+  "keywords": [
+    "poetry",
+    "flask",
+    "random",
+    "generator",
+    "web-app"
+  ],
+  "author": "fproulx-boostsecurity",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fproulx-boostsecurity/flood/issues"
+  },
+  "homepage": "https://github.com/fproulx-boostsecurity/flood#readme",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.8.0"
+  }
+}

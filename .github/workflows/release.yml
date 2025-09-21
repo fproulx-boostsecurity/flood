@@ -1,0 +1,108 @@
+name: Build and Release
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-flask
+        
+    - name: Install Node.js dependencies
+      run: |
+        npm install
+        
+    - name: Run tests
+      run: |
+        npm test
+        
+    - name: Create release package
+      run: |
+        # Create a distribution directory
+        mkdir -p dist
+        
+        # Copy application files
+        cp -r app.py requirements.txt package.json templates static dist/
+        
+        # Create version info
+        echo "Version: $(date +%Y%m%d-%H%M%S)" > dist/VERSION
+        echo "PR: #${{ github.event.pull_request.number }}" >> dist/VERSION
+        echo "Commit: ${{ github.event.pull_request.head.sha }}" >> dist/VERSION
+        
+        # Create tarball
+        tar -czf flood-${{ github.event.pull_request.head.sha }}.tar.gz -C dist .
+        
+    - name: Generate release tag
+      id: tag
+      run: |
+        TAG="pr-${{ github.event.pull_request.number }}-$(date +%Y%m%d-%H%M%S)"
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        release_name: "Flood Release ${{ steps.tag.outputs.tag }}"
+        body: |
+          Automated release from PR #${{ github.event.pull_request.number }}
+          
+          **Changes:**
+          ${{ github.event.pull_request.title }}
+          
+          **From commit:** ${{ github.event.pull_request.head.sha }}
+          
+          **Files included:**
+          - Flask application (app.py)
+          - HTML templates
+          - CSS and JavaScript assets
+          - Python requirements
+          - Package.json for npm
+          
+          **To run:**
+          1. Extract the archive
+          2. Install Python dependencies: `pip install -r requirements.txt`
+          3. Run the application: `python app.py`
+          4. Open browser to http://localhost:5000
+        draft: false
+        prerelease: true
+      id: create_release
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./flood-${{ github.event.pull_request.head.sha }}.tar.gz
+        asset_name: flood-${{ github.event.pull_request.head.sha }}.tar.gz
+        asset_content_type: application/gzip
